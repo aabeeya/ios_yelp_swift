@@ -22,7 +22,7 @@ class SwitchCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        onSwitch.addTarget(self, action: "switchValueChanged", for: UIControlEvents.valueChanged)
+        onSwitch.addTarget(self, action: #selector(switchValueChanged), for: UIControlEvents.valueChanged)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -32,7 +32,7 @@ class SwitchCell: UITableViewCell {
     }
 
     func switchValueChanged() {
-        print ("Value Changed")
+        // print ("Value Changed")
         delegate?.switchCell?(switchCell: self, didChangeValue: onSwitch.isOn)
     }
 }
