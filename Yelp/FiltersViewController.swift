@@ -9,18 +9,29 @@
 import UIKit
 
 @objc protocol FiltersViewControllerDelegate {
-    @objc optional func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String:AnyObject])
+    @objc optional func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String:Any])
 
 }
 
-class FiltersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate {
+class FiltersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource, SwitchCellDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var dealSwitch: UISwitch!
+    @IBOutlet weak var distancePicker: UIPickerView!
+    @IBOutlet weak var sortByPicker: UIPickerView!
     weak var delegate: FiltersViewControllerDelegate?
 
 
     var categories: [[String:String]]!
+    var deals: Bool?
+    var distance: UInt?
+    var sort: YelpSortMode?
+
     var switchStates: [Int:Bool] = [Int:Bool] ()
+
+    var distanceOptions: [String] = [String]();
+    var sortOptions: [String] = [String]();
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +40,15 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         tableView.delegate = self
         tableView.dataSource = self
 
+        distancePicker.delegate = self;
+        distancePicker.dataSource = self;
+
+        sortByPicker.delegate = self;
+        sortByPicker.dataSource = self;
+
+        distanceOptions = ["Auto", "1/2 mile", "1 miles", "5 miles", "10 miles"];
+        sortOptions = ["Best Match", "Distance", "Highest Rated"];
+
         // Do any additional setup after loading the view.
     }
 
@@ -36,7 +56,6 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
 
     @IBAction func onCancelButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
@@ -45,7 +64,7 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBAction func onSearchButton(_ sender: Any) {
         dismiss(animated: true, completion: nil)
 
-        var filters = [String : AnyObject]()
+        var filters = [String : Any]()
         var selectedCategories = [String]()
         for (row,isSelected) in switchStates {
             if isSelected {
@@ -55,6 +74,18 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
 
         if selectedCategories.count > 0 {
             filters["categories"] = selectedCategories as AnyObject
+        }
+
+        if (deals != nil) {
+            filters["deals"] = deals! as Bool
+        }
+
+        if (distance != nil) {
+
+        }
+
+        if (sort != nil) {
+            filters["sort"] = sort! as YelpSortMode
         }
 
         delegate?.filtersViewController?(filtersViewController: self, didUpdateFilters: filters)
@@ -265,4 +296,57 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
                 ["name" : "Yugoslav", "code": "yugoslav"]]
     }
 
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if (pickerView == distancePicker){
+            return distanceOptions.count;
+        }
+        if (pickerView == sortByPicker){
+            return sortOptions.count
+        }
+        return 0
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if (pickerView == distancePicker){
+            return distanceOptions[row];
+
+        }
+        if (pickerView == sortByPicker){
+            return sortOptions[row]
+        }
+        return ""
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if (pickerView == distancePicker){
+            // Convert miles to meters
+            switch(row) {
+            case 0:
+                distance = nil // no filter
+                break
+            case 1:
+                distance = 805 // 1/2 mile
+                break
+            case 2:
+                distance = 1609 // 1 mile
+                break
+            case 3:
+                distance = 8050 //5 miles
+                break
+            case 4:
+                distance = 16090// 10 miles
+                break
+            default:
+                distance = nil
+            }
+        }
+        if (pickerView == sortByPicker){
+            sort = YelpSortMode(rawValue: row)
+        }
+    }
 }
+

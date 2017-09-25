@@ -100,9 +100,11 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
 
-        var categories = filters["categories"] as? [String]
+        let categories = filters["categories"] as? [String]
+        let deals = filters["deals"] as? Bool
+        let sort = filters["sort"] as? YelpSortMode
 
-        Business.searchWithTerm(term: "Restaurants", sort: nil, categories: categories, deals: nil) { (businesses: [Business]?, error) -> Void in
+        Business.searchWithTerm(term: "Restaurants", sort: sort, categories: categories, deals: deals) { (businesses: [Business]?, error) -> Void in
 
             self.businesses = businesses
             self.tableView.reloadData()
