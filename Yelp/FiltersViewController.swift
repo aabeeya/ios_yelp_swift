@@ -81,7 +81,7 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         }
 
         if (distance != nil) {
-
+            filters["distance"] = distance! as UInt;
         }
 
         if (sort != nil) {
